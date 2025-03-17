@@ -2,11 +2,9 @@ import os
 import uuid
 from datetime import datetime
 from werkzeug.utils import secure_filename
-from .utils import encrypt_data, decrypt_data
 from .models import FileUpload
-from .extensions import db   # changed to import db from extensions.py
+from .extensions import db
 
-# Define upload folder relative to project root
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -14,38 +12,25 @@ if not os.path.exists(UPLOAD_FOLDER):
 def count_active_files():
     return FileUpload.query.filter_by(download_confirmed=False).count()
 
-def handle_file_upload(file):
+def handle_file_upload(file, salt, iv):
     try:
-        # Block upload if there are 3 active files
         if count_active_files() >= 3:
             return {"error": "Maximum number of active files reached. Please delete a file to upload a new one."}
-        
         original_filename = secure_filename(file.filename)
         unique_filename = f"{uuid.uuid4()}_{original_filename}"
         file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
-        
-        # Log file details for debugging
-        print(f"Processing file: {original_filename}, size: {file.content_length if hasattr(file, 'content_length') else 'unknown'}")
-        
-        data = file.read()
+        data = file.read()  # The file is already encrypted by the client.
         if not data:
             return {"error": "Empty file uploaded"}
-        
-        print(f"Read {len(data)} bytes from file")
-        
-        encrypted = encrypt_data(data)
         with open(file_path, "wb") as f:
-            f.write(encrypted)
-            
-        print(f"Wrote encrypted file to {file_path}")
-        
-        # Create a new DB record for metadata
-        new_file = FileUpload(unique_filename=unique_filename, original_filename=original_filename)
+            f.write(data)
+        # Create a new DB record with salt and iv saved.
+        new_file = FileUpload(unique_filename=unique_filename,
+                              original_filename=original_filename,
+                              salt=salt,
+                              iv=iv)
         db.session.add(new_file)
         db.session.commit()
-        
-        print(f"Added file record to database: {unique_filename}")
-        
         return {"message": "File uploaded successfully", "filename": unique_filename}
     except Exception as e:
         print(f"Error in handle_file_upload: {str(e)}")
@@ -59,13 +44,12 @@ def handle_file_download(filename):
     if not file_record or not os.path.exists(file_path):
         return None
     with open(file_path, "rb") as f:
-        encrypted_data = f.read()
-    # Update download_time if not set
+        file_data = f.read()
     if not file_record.download_time:
         file_record.download_time = datetime.utcnow()
         db.session.commit()
-    decrypted = decrypt_data(encrypted_data)
-    return decrypted
+    # Note: Do NOT decrypt the file here; it remains encrypted.
+    return file_data
 
 def handle_file_confirmation(filename, confirmed):
     file_path = os.path.join(UPLOAD_FOLDER, filename)

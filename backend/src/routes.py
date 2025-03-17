@@ -29,7 +29,10 @@ def upload_file():
     file = request.files.get("file")
     if not file:
         return jsonify({"error": "No file provided"}), 400
-    result = handle_file_upload(file)
+    # Extract salt and iv from the form (sent by the client)
+    salt = request.form.get("salt")
+    iv = request.form.get("iv")
+    result = handle_file_upload(file, salt, iv)  # Pass salt and iv to the service function
     if "error" in result:
         return jsonify(result), 400
     return jsonify(result)

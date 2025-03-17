@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { generateSalt, generateKeyFromPassword, encryptData } from './utils/crypto';
+import DecryptFile from './DecryptFile';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -98,6 +99,7 @@ function App() {
       />
       <br />
       <button onClick={handleUpload}>Upload Encrypted File</button>
+      <DecryptFile />
     </div>
   );
 }
