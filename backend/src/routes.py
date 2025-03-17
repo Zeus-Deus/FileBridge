@@ -16,6 +16,7 @@ def hello():
     })
 
 @blueprint.route("/health")
+@token_required
 def health():
     return jsonify({
         "status": "healthy",
