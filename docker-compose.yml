@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    networks:
+      - proxy
+      - front
+  
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DB_URL=postgresql://${PSQL_USER}:${PSQL_PASSWORD}@db:5432/${PSQL_DB}
+    networks:
+      - front
+      - back
+  
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${PSQL_DB}
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - back
+
+volumes:
+  db_data:
+
+networks:
+  front:
+  back:
+  proxy:
+    name: traefik
+    external: true
