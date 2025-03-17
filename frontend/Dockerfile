@@ -2,17 +2,19 @@ FROM node:18-alpine as build
 
 WORKDIR /app
 
-# Create a basic React app directly
+# Pass the API token as a build argument
+ARG REACT_APP_API_TOKEN
+ENV REACT_APP_API_TOKEN=$REACT_APP_API_TOKEN
+
+# Create a basic React app (this will generate a package.json etc.)
 RUN npx create-react-app .
 
-# Build the app
+# Copy your custom source files over the default ones
+COPY ./src/ ./src/
+
+# Build the app; Create React App will pick up REACT_APP_API_TOKEN now.
 RUN npm run build
 
-# Stage 2: Serve with Nginx
 FROM nginx:alpine
-
-# Copy the build files
 COPY --from=build /app/build /usr/share/nginx/html
-
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,6 +1,13 @@
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_TOKEN: ${API_TOKEN}
+    env_file:
+      - .env
+    environment:
+      - REACT_APP_API_TOKEN=${API_TOKEN}
     ports:
       - "3000:80"
     networks:

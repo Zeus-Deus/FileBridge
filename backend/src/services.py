@@ -15,21 +15,43 @@ def count_active_files():
     return FileUpload.query.filter_by(download_confirmed=False).count()
 
 def handle_file_upload(file):
-    # Block upload if there are 3 active files
-    if count_active_files() >= 3:
-        return {"error": "Maximum number of active files reached. Please delete a file to upload a new one."}
-    original_filename = secure_filename(file.filename)
-    unique_filename = f"{uuid.uuid4()}_{original_filename}"
-    file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
-    data = file.read()
-    encrypted = encrypt_data(data)
-    with open(file_path, "wb") as f:
-        f.write(encrypted)
-    # Create a new DB record for metadata
-    new_file = FileUpload(unique_filename=unique_filename, original_filename=original_filename)
-    db.session.add(new_file)
-    db.session.commit()
-    return {"message": "File uploaded successfully", "filename": unique_filename}
+    try:
+        # Block upload if there are 3 active files
+        if count_active_files() >= 3:
+            return {"error": "Maximum number of active files reached. Please delete a file to upload a new one."}
+        
+        original_filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4()}_{original_filename}"
+        file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+        
+        # Log file details for debugging
+        print(f"Processing file: {original_filename}, size: {file.content_length if hasattr(file, 'content_length') else 'unknown'}")
+        
+        data = file.read()
+        if not data:
+            return {"error": "Empty file uploaded"}
+        
+        print(f"Read {len(data)} bytes from file")
+        
+        encrypted = encrypt_data(data)
+        with open(file_path, "wb") as f:
+            f.write(encrypted)
+            
+        print(f"Wrote encrypted file to {file_path}")
+        
+        # Create a new DB record for metadata
+        new_file = FileUpload(unique_filename=unique_filename, original_filename=original_filename)
+        db.session.add(new_file)
+        db.session.commit()
+        
+        print(f"Added file record to database: {unique_filename}")
+        
+        return {"message": "File uploaded successfully", "filename": unique_filename}
+    except Exception as e:
+        print(f"Error in handle_file_upload: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {"error": f"Upload failed: {str(e)}"}
 
 def handle_file_download(filename):
     file_path = os.path.join(UPLOAD_FOLDER, filename)
