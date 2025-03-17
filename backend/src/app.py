@@ -1,9 +1,9 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 import os
+from . import create_app
 
-app = Flask(__name__)
-CORS(app)
+app = create_app()
 
 # Get database URL from environment variable
 db_url = os.environ.get('DB_URL', 'postgresql://postgres:postgres@db:5432/postgres')
