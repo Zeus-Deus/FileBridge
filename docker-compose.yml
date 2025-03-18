@@ -24,6 +24,8 @@ services:
       - db
     environment:
       - DB_URL=postgresql://${PSQL_USER}:${PSQL_PASSWORD}@db:5432/${PSQL_DB}
+    volumes:
+      - uploads_data:/app/uploads    # Persistent storage for uploaded files
     networks:
       - front
       - back
@@ -41,6 +43,7 @@ services:
 
 volumes:
   db_data:
+  uploads_data:     # Define volume for uploads
 
 networks:
   front:

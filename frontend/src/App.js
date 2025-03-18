@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { generateSalt, generateKeyFromPassword, encryptData } from './utils/crypto';
 import DecryptFile from './DecryptFile';
+import { Container, Typography, TextField, Button, Box } from '@mui/material';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -87,20 +88,30 @@ function App() {
   };
 
   return (
-    <div>
-      <h2>Encrypted File Transfer</h2>
-      <input type="file" onChange={handleFileChange} />
-      <br />
-      <input 
-        type="password" 
-        placeholder="Enter Encryption Password" 
-        value={encryptionPassword}
-        onChange={handlePasswordChange}
-      />
-      <br />
-      <button onClick={handleUpload}>Upload Encrypted File</button>
+    <Container maxWidth="md">
+      <Typography variant="h4" component="h1" gutterBottom>
+        Encrypted File Transfer
+      </Typography>
+      <Box mb={2}>
+        <input type="file" onChange={handleFileChange} />
+      </Box>
+      <Box mb={2}>
+        <TextField 
+          type="password" 
+          label="Enter Encryption Password" 
+          variant="outlined"
+          fullWidth
+          value={encryptionPassword}
+          onChange={handlePasswordChange}
+        />
+      </Box>
+      <Box mb={2}>
+        <Button variant="contained" color="primary" onClick={handleUpload}>
+          Upload Encrypted File
+        </Button>
+      </Box>
       <DecryptFile />
-    </div>
+    </Container>
   );
 }
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateKeyFromPassword } from './utils/crypto';
+import { Container, Typography, TextField, Button, Box, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function DecryptFile() {
   const [files, setFiles] = useState([]);
@@ -47,36 +49,75 @@ function DecryptFile() {
     }
   };
 
+  const handleDelete = async (fileRecord) => {
+    const response = await fetch(`http://localhost:5000/confirm/${fileRecord.unique_filename}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.REACT_APP_API_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ confirmed: true })
+    });
+    if (response.ok) {
+      setFiles(files.filter(file => file.unique_filename !== fileRecord.unique_filename));
+      alert("File deleted successfully");
+    } else {
+      alert("Failed to delete file");
+    }
+  };
+
   return (
-    <div>
-      <h2>Download and Decrypt File</h2>
-      <ul>
+    <Container maxWidth="md">
+      <Typography variant="h5" component="h2" gutterBottom>
+        Download and Decrypt File
+      </Typography>
+      <List>
         {files.map(file => (
-          <li key={file.unique_filename}>
-            {file.original_filename} 
-            <button onClick={() => setSelectedFile(file)}>Select</button>
-          </li>
+          <ListItem key={file.unique_filename} button onClick={() => setSelectedFile(file)}>
+            <ListItemText primary={file.original_filename} />
+            <IconButton edge="end" aria-label="delete" onClick={(e) => { e.stopPropagation(); handleDelete(file); }}>
+              <DeleteIcon />
+            </IconButton>
+          </ListItem>
         ))}
-      </ul>
+      </List>
       {selectedFile && (
-        <div>
-          <h3>Decrypt {selectedFile.original_filename}</h3>
-          <input 
+        <Box mt={2}>
+          <Typography variant="h6" component="h3">
+            Decrypt {selectedFile.original_filename}
+          </Typography>
+          <TextField 
             type="password" 
-            placeholder="Enter decryption password" 
+            label="Enter decryption password" 
+            variant="outlined"
+            fullWidth
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button onClick={() => handleDecrypt(selectedFile)}>Decrypt</button>
-        </div>
+          <Box mt={2}>
+            <Button variant="contained" color="primary" onClick={() => handleDecrypt(selectedFile)}>
+              Decrypt
+            </Button>
+          </Box>
+        </Box>
       )}
       {decryptedUrl && (
-        <div>
-          <h3>Decrypted File:</h3>
-          <img src={decryptedUrl} alt="Decrypted File" />
-        </div>
+        <Box mt={2}>
+          <Typography variant="h6" component="h3">
+            Decrypted File:
+          </Typography>
+          {/* Instead of embedding the file, provide a download link */}
+          <Button 
+            variant="contained" 
+            color="primary" 
+            component="a" 
+            href={decryptedUrl}
+            download={selectedFile ? selectedFile.original_filename : "decrypted_file"}>
+            Download Decrypted File
+          </Button>
+        </Box>
       )}
-    </div>
+    </Container>
   );
 }
 
