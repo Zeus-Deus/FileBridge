@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lavishly+Yours&display=swap');
+
+.pi-calculator {
+  display: grid;
+  height: 200px;
+  place-content: center;
+  justify-items: center;
+  background: #282c34;
+  color: #61dafb;
+  font-family: system-ui, sans-serif;
+  border-radius: 16px;
+  position: relative;
+}
+
+.pi-calculator h1 {
+  font-family: "Lavishly Yours", "Great Vibes", cursive;
+  font-size: 4rem;
+  font-weight: 400;
+  line-height: .8;
+  padding: 0;
+  margin: 0;
+  color: #f9f6ef;
+}
+
+.pi-display {
+  font-size: 2rem;
+  display: flex;
+  gap: 3px;
+}
+
+.digit {
+  display: inline-block;
+  width: 1ch;
+  height: .8lh;
+  overflow: hidden;
+  position: relative;
+  border: 2px inset #5eb0e5;
+  border-radius: 5px;
+}
+
+.digit:nth-of-type(2) {
+  color: coral;
+  border: 0;
+  width: .5ch;
+}
+
+.digit-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: transform 0.5s ease, color 1s linear;
+}
+
+.digit-inner span {
+  display: block;
+  height: 30px;
+  line-height: 30px;
+}
+
+.pi-message {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 1rem;
+  color: #61dafb;
+  text-align: center;
+  font-weight: 500;
+  opacity: 0.9;
+  text-shadow: 0 0 10px rgba(97, 218, 251, 0.3);
+} 

@@ -4,6 +4,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import FileUploader from './FileUploader'; // new import
 import FileManager from './FileManager';
+import PiCalculator from './PiCalculator';
 
 const Homepage = () => {
   return (
@@ -33,7 +34,7 @@ const Homepage = () => {
         </Box>
       </Box>
 
-      {/* Main Upload Section with two upload bubbles */}
+      {/* Main Content */}
       <Container 
         maxWidth="md"
         sx={{
@@ -45,6 +46,22 @@ const Homepage = () => {
           textAlign: 'center',
         }}
       >
+        {/* Pi Calculator Section */}
+        <Box sx={{ mb: 4, width: '100%' }}>
+          <Paper 
+            elevation={3}
+            sx={{
+              p: 3,
+              borderRadius: '16px',
+              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+              background: 'transparent',
+              overflow: 'hidden'
+            }}
+          >
+            <PiCalculator />
+          </Paper>
+        </Box>
+
         <Grid container spacing={4}>
           {/* File Upload Bubble */}
           <Grid item xs={12} md={6}>
